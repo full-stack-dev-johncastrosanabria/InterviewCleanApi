@@ -1,0 +1,59 @@
+@InterviewCleanApi_HostAddress = http://localhost:5000
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZW1haWwiOiJqb2huQHRlc3QuY29tIiwiaHR0cDovL3NjaGVtYXMueG1sc29hcC5vcmcvd3MvMjAwNS8wNS9pZGVudGl0eS9jbGFpbXMvbmFtZSI6ImpvaG4iLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJBZG1pbiIsImp0aSI6IjhkNTcyMjAzLWZmNzAtNDg1Yy1iMWE0LTQ4MTcwZWE1ZDI4OCIsImV4cCI6MTc3NjY1Nzc3NiwiaXNzIjoiSW50ZXJ2aWV3Q2xlYW5BcGkiLCJhdWQiOiJJbnRlcnZpZXdDbGVhbkFwaVVzZXJzIn0.fClqdbc4uTrvjOgxjT-6YcwMODReTPgsY56fyUR4tY4
+
+### Registrar usuario
+POST {{InterviewCleanApi_HostAddress}}/api/auth/register
+Content-Type: application/json
+
+{
+  "userName": "john",
+  "email": "john@test.com",
+  "password": "123456"
+}
+
+### Login
+POST {{InterviewCleanApi_HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "john@test.com",
+  "password": "123456"
+}
+
+### Obtener productos
+GET {{InterviewCleanApi_HostAddress}}/api/products
+Accept: application/json
+Authorization: Bearer {{token}}
+
+### Crear producto
+POST {{InterviewCleanApi_HostAddress}}/api/products
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Laptop 2",
+  "description": "Laptop para pruebas 2",
+  "price": 850.50,
+  "stock": 5
+}
+
+### Obtener producto por id
+GET {{InterviewCleanApi_HostAddress}}/api/products/1
+Accept: application/json
+Authorization: Bearer {{token}}
+
+### Actualizar producto
+PUT {{InterviewCleanApi_HostAddress}}/api/products/1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Laptop Pro",
+  "description": "Actualizada",
+  "price": 999.99,
+  "stock": 10
+}
+
+### Eliminar producto
+DELETE {{InterviewCleanApi_HostAddress}}/api/products/1
+Authorization: Bearer {{token}}

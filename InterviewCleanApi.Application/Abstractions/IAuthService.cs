@@ -1,0 +1,19 @@
+using InterviewCleanApi.Application.DTOs.Auth;
+
+namespace InterviewCleanApi.Application.Abstractions;
+
+/// <summary>
+///     Defines the use cases for registering users and issuing login tokens.
+/// </summary>
+public interface IAuthService
+{
+    /// <summary>
+    ///     Creates a new user account after validating the incoming registration data.
+    /// </summary>
+    Task RegisterAsync(RegisterRequest request, CancellationToken cancellationToken);
+
+    /// <summary>
+    ///     Authenticates a user and returns the JWT payload for the client.
+    /// </summary>
+    Task<LoginResponse> LoginAsync(LoginRequest request, CancellationToken cancellationToken);
+}
