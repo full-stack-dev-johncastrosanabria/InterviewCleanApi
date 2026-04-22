@@ -1,4 +1,5 @@
 using InterviewCleanApi.Application.Abstractions;
+using InterviewCleanApi.Domain.Common;
 using InterviewCleanApi.Domain.Entities;
 using InterviewCleanApi.Infrastructure.Persistence;
 using InterviewCleanApi.Infrastructure.Repositories;
@@ -28,19 +29,27 @@ public static class ServiceCollectionExtensions
         if (string.IsNullOrWhiteSpace(connectionString))
             throw new InvalidOperationException("La cadena de conexión DefaultConnection no está configurada.");
 
+        // Configuration
         services.Configure<JwtOptions>(
             configuration.GetSection(JwtOptions.SectionName));
 
+        // Database
         services.AddDbContext<AppDbContext>(options =>
             options.UseMySQL(connectionString));
 
+        // Unit of Work
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+        // Repositories
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IProductRepository, ProductRepository>();
 
+        // Application Services
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IProductService, ProductService>();
-        services.AddScoped<IJwtTokenService, JwtTokenService>();
 
+        // Infrastructure Services
+        services.AddScoped<IJwtTokenService, JwtTokenService>();
         services.AddScoped<IPasswordHasher<AppUser>, PasswordHasher<AppUser>>();
 
         return services;

@@ -1,59 +1,172 @@
-# AngularClient
+# 🅰️ Angular Client - Clean Architecture
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.2.
+Cliente Angular moderno con arquitectura limpia, servicios separados, componentes standalone y pruebas E2E con Playwright.
 
-## Development server
+## 🏗️ Arquitectura
 
-To start a local development server, run:
+```
+src/app/
+├── components/          # Standalone Components
+│   ├── login-form/
+│   ├── product-form/
+│   ├── product-list/
+│   └── product-card/
+├── services/           # Injectable Services
+│   ├── api.service.ts
+│   ├── auth.service.ts
+│   └── product.service.ts
+├── models/             # TypeScript Interfaces
+│   ├── auth.model.ts
+│   └── product.model.ts
+├── app.ts             # Main Component
+└── app.config.ts      # App Configuration
 
-```bash
-ng serve
+tests/                 # Pruebas E2E con Playwright
+├── auth.spec.ts
+└── products.spec.ts
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+## 🚀 Características
 
-## Code scaffolding
+- ✅ **Clean Architecture** - Separación de responsabilidades
+- ✅ **Standalone Components** - Sin NgModules
+- ✅ **Services con RxJS** - Programación reactiva
+- ✅ **TypeScript** - Tipado fuerte
+- ✅ **Signals Ready** - Preparado para Angular Signals
+- ✅ **Playwright Tests** - Pruebas E2E completas
+- ✅ **Responsive Design** - Mobile-first
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
+## 📦 Instalación
 
 ```bash
-ng build
+npm install
+npx playwright install
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+## 🏃 Desarrollo
 
 ```bash
-ng test
+npm start
 ```
 
-## Running end-to-end tests
+Abre [http://localhost:4200](http://localhost:4200)
 
-For end-to-end (e2e) testing, run:
+## 🧪 Pruebas
 
 ```bash
-ng e2e
+# Ejecutar todas las pruebas
+npm test
+
+# Modo UI interactivo
+npm run test:ui
+
+# Modo headed (ver navegador)
+npm run test:headed
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+## 🏗️ Build
 
-## Additional Resources
+```bash
+npm run build
+```
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+## 📝 Uso
+
+### Services
+
+```typescript
+import { AuthService } from './services/auth.service';
+import { ProductService } from './services/product.service';
+
+constructor(
+  private authService: AuthService,
+  private productService: ProductService
+) {}
+
+// Login
+this.authService.login('email@test.com', 'password').subscribe({
+  next: (response) => console.log('Logged in'),
+  error: (error) => console.error(error)
+});
+
+// Get products
+this.productService.getAll().subscribe({
+  next: (products) => console.log(products),
+  error: (error) => console.error(error)
+});
+```
+
+### Components
+
+```typescript
+// Standalone component
+@Component({
+  selector: 'app-my-component',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
+  templateUrl: './my-component.html',
+  styleUrl: './my-component.css'
+})
+export class MyComponent {}
+```
+
+## 🎨 Componentes
+
+### LoginFormComponent
+Formulario de autenticación con validación
+
+### ProductFormComponent
+Formulario para crear productos
+
+### ProductListComponent
+Lista de productos con grid responsive
+
+### ProductCardComponent
+Tarjeta individual de producto con acciones
+
+## 🧪 Cobertura de Tests
+
+- ✅ Autenticación (login, logout, persistencia)
+- ✅ CRUD de productos (crear, listar, eliminar)
+- ✅ Validación de formularios
+- ✅ Navegación y flujo completo
+- ✅ Responsive design
+
+## 🔧 Configuración
+
+### Environments
+
+```typescript
+// environment.ts
+export const environment = {
+  production: false,
+  apiUrl: 'http://localhost:5000'
+};
+```
+
+## 📚 Tecnologías
+
+- Angular 21.2.0
+- RxJS 7.8.0
+- TypeScript 5.9.2
+- Playwright 1.49.1
+
+## 🎯 Mejores Prácticas
+
+- ✅ Standalone components (sin NgModules)
+- ✅ Services con RxJS para estado reactivo
+- ✅ TypeScript strict mode
+- ✅ Componentes pequeños y enfocados
+- ✅ Data attributes para testing
+- ✅ CSS encapsulado por componente
+- ✅ Error handling con RxJS operators
+
+## 📖 Documentación
+
+Ver [CONVENCIONES_ARQUITECTURA.md](../../CONVENCIONES_ARQUITECTURA.md) para más detalles sobre la arquitectura del proyecto.
+
+---
+
+**Versión:** 2.0.0  
+**Framework:** Angular 21  
+**Estado:** ✅ Producción Ready

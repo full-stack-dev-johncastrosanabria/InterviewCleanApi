@@ -1,5 +1,6 @@
 using InterviewCleanApi.Application.Abstractions;
 using InterviewCleanApi.Application.DTOs.Products;
+using InterviewCleanApi.Domain.Common;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,26 +9,56 @@ namespace InterViewCleanApi.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [Authorize]
-public sealed class ProductsController(IProductService productService) : ControllerBase
+public sealed class ProductsController : ControllerBase
 {
+    private readonly IProductService _productService;
+
+    public ProductsController(IProductService productService)
+    {
+        _productService = productService;
+    }
+
     /// <summary>
     ///     Returns all products visible to authenticated users.
     /// </summary>
     [HttpGet]
+    [ProducesResponseType(typeof(IReadOnlyList<ProductResponse>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
     {
-        var products = await productService.GetAllAsync(cancellationToken);
-        return Ok(products);
+        var result = await _productService.GetAllAsync(cancellationToken);
+
+        if (result.IsFailure)
+        {
+            return Problem(
+                statusCode: StatusCodes.Status500InternalServerError,
+                title: result.Error.Code,
+                detail: result.Error.Message);
+        }
+
+        return Ok(result.Value);
     }
 
     /// <summary>
     ///     Returns a single product or 404 when it does not exist.
     /// </summary>
     [HttpGet("{id:int}")]
+    [ProducesResponseType(typeof(ProductResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetById(int id, CancellationToken cancellationToken)
     {
-        var product = await productService.GetByIdAsync(id, cancellationToken);
-        return product is null ? NotFound() : Ok(product);
+        var result = await _productService.GetByIdAsync(id, cancellationToken);
+
+        if (result.IsFailure)
+        {
+            return result.Error.Code == "Error.NotFound"
+                ? NotFound(new { error = result.Error.Message })
+                : Problem(
+                    statusCode: StatusCodes.Status500InternalServerError,
+                    title: result.Error.Code,
+                    detail: result.Error.Message);
+        }
+
+        return Ok(result.Value);
     }
 
     /// <summary>
@@ -35,10 +66,28 @@ public sealed class ProductsController(IProductService productService) : Control
     /// </summary>
     [HttpPost]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> Create(ProductRequest request, CancellationToken cancellationToken)
+    [ProducesResponseType(typeof(ProductResponse), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> Create([FromBody] ProductRequest request, CancellationToken cancellationToken)
     {
-        var created = await productService.CreateAsync(request, cancellationToken);
-        return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        var result = await _productService.CreateAsync(request, cancellationToken);
+
+        if (result.IsFailure)
+        {
+            return result.Error.Code == "Error.Validation"
+                ? BadRequest(new { error = result.Error.Message })
+                : Problem(
+                    statusCode: StatusCodes.Status500InternalServerError,
+                    title: result.Error.Code,
+                    detail: result.Error.Message);
+        }
+
+        return CreatedAtAction(nameof(GetById), new { id = result.Value.Id }, result.Value);
     }
 
     /// <summary>
@@ -46,10 +95,31 @@ public sealed class ProductsController(IProductService productService) : Control
     /// </summary>
     [HttpPut("{id:int}")]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> Update(int id, ProductRequest request, CancellationToken cancellationToken)
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Update(int id, [FromBody] ProductRequest request, CancellationToken cancellationToken)
     {
-        var updated = await productService.UpdateAsync(id, request, cancellationToken);
-        return updated ? NoContent() : NotFound();
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        var result = await _productService.UpdateAsync(id, request, cancellationToken);
+
+        if (result.IsFailure)
+        {
+            return result.Error.Code == "Error.NotFound"
+                ? NotFound(new { error = result.Error.Message })
+                : result.Error.Code == "Error.Validation"
+                    ? BadRequest(new { error = result.Error.Message })
+                    : Problem(
+                        statusCode: StatusCodes.Status500InternalServerError,
+                        title: result.Error.Code,
+                        detail: result.Error.Message);
+        }
+
+        return NoContent();
     }
 
     /// <summary>
@@ -57,9 +127,22 @@ public sealed class ProductsController(IProductService productService) : Control
     /// </summary>
     [HttpDelete("{id:int}")]
     [Authorize(Roles = "Admin")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
     {
-        var deleted = await productService.DeleteAsync(id, cancellationToken);
-        return deleted ? NoContent() : NotFound();
+        var result = await _productService.DeleteAsync(id, cancellationToken);
+
+        if (result.IsFailure)
+        {
+            return result.Error.Code == "Error.NotFound"
+                ? NotFound(new { error = result.Error.Message })
+                : Problem(
+                    statusCode: StatusCodes.Status500InternalServerError,
+                    title: result.Error.Code,
+                    detail: result.Error.Message);
+        }
+
+        return NoContent();
     }
 }

@@ -1,0 +1,32 @@
+.product-list {
+  margin-top: 2rem;
+}
+
+.product-list h2 {
+  margin: 0 0 1rem 0;
+  color: #e2e8f0;
+}
+
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.loading,
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #94a3b8;
+}
+
+.empty-state p {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.125rem;
+  color: #cbd5e1;
+}
+
+.empty-state small {
+  font-size: 0.875rem;
+  color: #64748b;
+}

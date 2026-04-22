@@ -1,6 +1,7 @@
 using System.Text;
 using InterviewCleanApi.Infrastructure.DependencyInjection;
 using InterviewCleanApi.Infrastructure.Security;
+using InterViewCleanApi.Middleware;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 
@@ -10,6 +11,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApi();
+
+// Add exception handling
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
 
 // Wires repositories, EF Core, security helpers, and application services.
 builder.Services.AddInfrastructure(builder.Configuration);
@@ -48,11 +53,11 @@ builder.Services.AddCors(options =>
                 "http://localhost:5173",
                 "http://127.0.0.1:5173",
                 "http://localhost:5174",
-                "http://127.0.0.1:5174",
-                "http://localhost:5174/"
+                "http://127.0.0.1:5174"
             )
             .AllowAnyHeader()
-            .AllowAnyMethod();
+            .AllowAnyMethod()
+            .AllowCredentials();
     });
 });
 
@@ -60,8 +65,8 @@ builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
-// Centralizes exception handling so controllers can throw domain-specific errors.
-app.UseExceptionHandler("/error");
+// Use the new exception handler
+app.UseExceptionHandler();
 
 if (app.Environment.IsDevelopment()) app.MapOpenApi();
 

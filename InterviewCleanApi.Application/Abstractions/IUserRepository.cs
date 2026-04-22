@@ -1,3 +1,4 @@
+using InterviewCleanApi.Domain.Common;
 using InterviewCleanApi.Domain.Entities;
 
 namespace InterviewCleanApi.Application.Abstractions;
@@ -5,20 +6,15 @@ namespace InterviewCleanApi.Application.Abstractions;
 /// <summary>
 ///     Persists and queries application users.
 /// </summary>
-public interface IUserRepository
+public interface IUserRepository : IRepository<AppUser>
 {
     /// <summary>
     ///     Finds a user by normalized email address.
     /// </summary>
-    Task<AppUser?> GetByEmailAsync(string email, CancellationToken cancellationToken);
+    Task<AppUser?> GetByEmailAsync(string email, CancellationToken cancellationToken = default);
 
     /// <summary>
-    ///     Creates a new user.
+    ///     Checks if a user with the given email already exists.
     /// </summary>
-    Task AddAsync(AppUser user, CancellationToken cancellationToken);
-
-    /// <summary>
-    ///     Executes pending user changes to the database.
-    /// </summary>
-    Task SaveChangesAsync(CancellationToken cancellationToken);
+    Task<bool> ExistsByEmailAsync(string email, CancellationToken cancellationToken = default);
 }

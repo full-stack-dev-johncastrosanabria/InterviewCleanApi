@@ -2,6 +2,26 @@
 
 A technical interview project built with **.NET 10** following **Clean Architecture** principles, with **three separate frontend clients** implemented in **React**, **Angular**, and **Vue**.
 
+## 🎉 Versión 2.0 - Mejoras Implementadas
+
+Este proyecto ha sido mejorado siguiendo las **mejores prácticas de Clean Architecture** y desarrollo .NET moderno:
+
+✅ **Patrón Result** para manejo de errores explícito  
+✅ **Repository Genérico** + **Unit of Work** para persistencia  
+✅ **Errores de Dominio** centralizados y tipados  
+✅ **Validación con Data Annotations** en DTOs  
+✅ **Logging Estructurado** con ILogger  
+✅ **Global Exception Handler** para manejo consistente de errores  
+✅ **Constantes de Dominio** para valores reutilizables  
+✅ **Controladores mejorados** con ProducesResponseType  
+✅ **CORS mejorado** con soporte para credenciales  
+✅ **Principios SOLID** aplicados en toda la arquitectura  
+
+📚 **Documentación completa:**
+- [`MEJORAS_IMPLEMENTADAS.md`](MEJORAS_IMPLEMENTADAS.md) - Resumen ejecutivo de mejoras
+- [`README_IMPROVEMENTS.md`](README_IMPROVEMENTS.md) - Documentación detallada
+- [`EJEMPLOS_DE_USO.md`](EJEMPLOS_DE_USO.md) - Ejemplos prácticos de código
+
 ## Overview
 
 This project includes:

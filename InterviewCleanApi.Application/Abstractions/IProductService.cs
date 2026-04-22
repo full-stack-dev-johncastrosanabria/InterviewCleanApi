@@ -1,31 +1,35 @@
 using InterviewCleanApi.Application.DTOs.Products;
+using InterviewCleanApi.Domain.Common;
 
 namespace InterviewCleanApi.Application.Abstractions;
 
+/// <summary>
+///     Defines product business operations.
+/// </summary>
 public interface IProductService
 {
     /// <summary>
     ///     Returns the complete product catalog.
     /// </summary>
-    Task<IReadOnlyCollection<ProductResponse>> GetAllAsync(CancellationToken cancellationToken);
+    Task<Result<IReadOnlyList<ProductResponse>>> GetAllAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
     ///     Returns a single product DTO when it exists.
     /// </summary>
-    Task<ProductResponse?> GetByIdAsync(int id, CancellationToken cancellationToken);
+    Task<Result<ProductResponse>> GetByIdAsync(int id, CancellationToken cancellationToken = default);
 
     /// <summary>
     ///     Creates a product from client input and returns the created DTO.
     /// </summary>
-    Task<ProductResponse> CreateAsync(ProductRequest request, CancellationToken cancellationToken);
+    Task<Result<ProductResponse>> CreateAsync(ProductRequest request, CancellationToken cancellationToken = default);
 
     /// <summary>
-    ///     Updates an existing product and reports whether the target record was found.
+    ///     Updates an existing product.
     /// </summary>
-    Task<bool> UpdateAsync(int id, ProductRequest request, CancellationToken cancellationToken);
+    Task<Result> UpdateAsync(int id, ProductRequest request, CancellationToken cancellationToken = default);
 
     /// <summary>
-    ///     Deletes an existing product and reports whether the target record was found.
+    ///     Deletes an existing product.
     /// </summary>
-    Task<bool> DeleteAsync(int id, CancellationToken cancellationToken);
+    Task<Result> DeleteAsync(int id, CancellationToken cancellationToken = default);
 }

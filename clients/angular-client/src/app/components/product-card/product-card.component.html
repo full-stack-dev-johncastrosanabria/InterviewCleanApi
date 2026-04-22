@@ -1,0 +1,37 @@
+<article class="product-card" data-testid="product-card">
+  <div class="product-header">
+    <h3 data-testid="product-name">{{ product.name }}</h3>
+    <span class="product-id">#{{ product.id }}</span>
+  </div>
+
+  <p class="product-description" data-testid="product-description">
+    {{ product.description || 'Sin descripción' }}
+  </p>
+
+  <div class="product-details">
+    <div class="detail">
+      <span class="label">Precio:</span>
+      <span class="value price" data-testid="product-price">
+        ${{ product.price.toFixed(2) }}
+      </span>
+    </div>
+    <div class="detail">
+      <span class="label">Stock:</span>
+      <span 
+        class="value stock" 
+        [class.low]="product.stock < 10"
+        data-testid="product-stock"
+      >
+        {{ product.stock }}
+      </span>
+    </div>
+  </div>
+
+  <button
+    class="btn btn-danger"
+    (click)="onDelete()"
+    data-testid="delete-button"
+  >
+    Eliminar
+  </button>
+</article>

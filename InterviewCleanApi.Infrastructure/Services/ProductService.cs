@@ -1,103 +1,170 @@
 using InterviewCleanApi.Application.Abstractions;
 using InterviewCleanApi.Application.DTOs.Products;
+using InterviewCleanApi.Domain.Common;
 using InterviewCleanApi.Domain.Entities;
+using InterviewCleanApi.Domain.Errors;
+using Microsoft.Extensions.Logging;
 
 namespace InterviewCleanApi.Infrastructure.Services;
 
 /// <summary>
-///     Implements product CRUD use cases on top of the repository layer.
+///     Implements product business logic using the Result pattern.
 /// </summary>
-public sealed class ProductService(IProductRepository productRepository) : IProductService
+public sealed class ProductService : IProductService
 {
-    /// <summary>
-    ///     Returns all products mapped into API response DTOs.
-    /// </summary>
-    public async Task<IReadOnlyCollection<ProductResponse>> GetAllAsync(CancellationToken cancellationToken)
-    {
-        var products = await productRepository.GetAllAsync(cancellationToken);
+    private readonly IProductRepository _productRepository;
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly ILogger<ProductService> _logger;
 
-        return products
-            .Select(MapToResponse)
-            .ToList();
+    public ProductService(
+        IProductRepository productRepository,
+        IUnitOfWork unitOfWork,
+        ILogger<ProductService> logger)
+    {
+        _productRepository = productRepository;
+        _unitOfWork = unitOfWork;
+        _logger = logger;
     }
 
-    /// <summary>
-    ///     Returns a single product DTO when the entity exists.
-    /// </summary>
-    public async Task<ProductResponse?> GetByIdAsync(int id, CancellationToken cancellationToken)
+    public async Task<Result<IReadOnlyList<ProductResponse>>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        var product = await productRepository.GetByIdAsync(id, cancellationToken);
-
-        return product is null ? null : MapToResponse(product);
-    }
-
-    /// <summary>
-    ///     Validates the request, creates a new product, and saves it.
-    /// </summary>
-    public async Task<ProductResponse> CreateAsync(ProductRequest request, CancellationToken cancellationToken)
-    {
-        ValidateRequest(request);
-
-        var product = new Product
+        try
         {
-            Name = request.Name.Trim(),
-            Description = string.IsNullOrWhiteSpace(request.Description)
+            var products = await _productRepository.GetAllAsync(cancellationToken);
+            var response = products.Select(MapToResponse).ToList();
+
+            _logger.LogInformation("Retrieved {Count} products", response.Count);
+            return Result.Success<IReadOnlyList<ProductResponse>>(response);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error retrieving products");
+            return Result.Failure<IReadOnlyList<ProductResponse>>(
+                new Error("Product.GetAllFailed", "Error al obtener los productos"));
+        }
+    }
+
+    public async Task<Result<ProductResponse>> GetByIdAsync(int id, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var product = await _productRepository.GetByIdAsync(id, cancellationToken);
+
+            if (product is null)
+            {
+                _logger.LogWarning("Product with id {ProductId} not found", id);
+                return Result.Failure<ProductResponse>(DomainErrors.Product.NotFound(id));
+            }
+
+            return Result.Success(MapToResponse(product));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error retrieving product {ProductId}", id);
+            return Result.Failure<ProductResponse>(
+                new Error("Product.GetByIdFailed", "Error al obtener el producto"));
+        }
+    }
+
+    public async Task<Result<ProductResponse>> CreateAsync(ProductRequest request, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var validationResult = ValidateProductRequest(request);
+            if (validationResult.IsFailure)
+            {
+                return Result.Failure<ProductResponse>(validationResult.Error);
+            }
+
+            var product = new Product
+            {
+                Name = request.Name.Trim(),
+                Description = string.IsNullOrWhiteSpace(request.Description)
+                    ? null
+                    : request.Description.Trim(),
+                Price = request.Price,
+                Stock = request.Stock
+            };
+
+            await _productRepository.AddAsync(product, cancellationToken);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+            _logger.LogInformation("Product created with id {ProductId}", product.Id);
+            return Result.Success(MapToResponse(product));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error creating product");
+            return Result.Failure<ProductResponse>(
+                new Error("Product.CreateFailed", "Error al crear el producto"));
+        }
+    }
+
+    public async Task<Result> UpdateAsync(int id, ProductRequest request, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var validationResult = ValidateProductRequest(request);
+            if (validationResult.IsFailure)
+            {
+                return validationResult;
+            }
+
+            var product = await _productRepository.GetByIdAsync(id, cancellationToken);
+
+            if (product is null)
+            {
+                _logger.LogWarning("Product with id {ProductId} not found for update", id);
+                return Result.Failure(DomainErrors.Product.NotFound(id));
+            }
+
+            product.Name = request.Name.Trim();
+            product.Description = string.IsNullOrWhiteSpace(request.Description)
                 ? null
-                : request.Description.Trim(),
-            Price = request.Price,
-            Stock = request.Stock
-        };
+                : request.Description.Trim();
+            product.Price = request.Price;
+            product.Stock = request.Stock;
 
-        await productRepository.AddAsync(product, cancellationToken);
-        await productRepository.SaveChangesAsync(cancellationToken);
+            _productRepository.Update(product);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return MapToResponse(product);
+            _logger.LogInformation("Product {ProductId} updated successfully", id);
+            return Result.Success();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error updating product {ProductId}", id);
+            return Result.Failure(
+                new Error("Product.UpdateFailed", "Error al actualizar el producto"));
+        }
     }
 
-    /// <summary>
-    ///     Updates an existing product when found.
-    /// </summary>
-    public async Task<bool> UpdateAsync(int id, ProductRequest request, CancellationToken cancellationToken)
+    public async Task<Result> DeleteAsync(int id, CancellationToken cancellationToken = default)
     {
-        ValidateRequest(request);
+        try
+        {
+            var product = await _productRepository.GetByIdAsync(id, cancellationToken);
 
-        var product = await productRepository.GetByIdAsync(id, cancellationToken);
+            if (product is null)
+            {
+                _logger.LogWarning("Product with id {ProductId} not found for deletion", id);
+                return Result.Failure(DomainErrors.Product.NotFound(id));
+            }
 
-        if (product is null)
-            return false;
+            _productRepository.Delete(product);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        product.Name = request.Name.Trim();
-        product.Description = string.IsNullOrWhiteSpace(request.Description)
-            ? null
-            : request.Description.Trim();
-        product.Price = request.Price;
-        product.Stock = request.Stock;
-
-        productRepository.Update(product);
-        await productRepository.SaveChangesAsync(cancellationToken);
-
-        return true;
+            _logger.LogInformation("Product {ProductId} deleted successfully", id);
+            return Result.Success();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error deleting product {ProductId}", id);
+            return Result.Failure(
+                new Error("Product.DeleteFailed", "Error al eliminar el producto"));
+        }
     }
 
-    /// <summary>
-    ///     Deletes a product when it exists.
-    /// </summary>
-    public async Task<bool> DeleteAsync(int id, CancellationToken cancellationToken)
-    {
-        var product = await productRepository.GetByIdAsync(id, cancellationToken);
-
-        if (product is null)
-            return false;
-
-        productRepository.Delete(product);
-        await productRepository.SaveChangesAsync(cancellationToken);
-
-        return true;
-    }
-
-    /// <summary>
-    ///     Centralizes entity-to-DTO mapping so every endpoint returns the same structure.
-    /// </summary>
     private static ProductResponse MapToResponse(Product product)
     {
         return new ProductResponse(
@@ -110,18 +177,23 @@ public sealed class ProductService(IProductRepository productRepository) : IProd
         );
     }
 
-    /// <summary>
-    ///     Enforces the business rules expected by the product CRUD endpoints.
-    /// </summary>
-    private static void ValidateRequest(ProductRequest request)
+    private static Result ValidateProductRequest(ProductRequest request)
     {
         if (string.IsNullOrWhiteSpace(request.Name))
-            throw new InvalidOperationException("El nombre del producto es requerido.");
+        {
+            return Result.Failure(DomainErrors.Product.NameRequired);
+        }
 
         if (request.Price < 0)
-            throw new InvalidOperationException("El precio no puede ser negativo.");
+        {
+            return Result.Failure(DomainErrors.Product.NegativePrice);
+        }
 
         if (request.Stock < 0)
-            throw new InvalidOperationException("El stock no puede ser negativo.");
+        {
+            return Result.Failure(DomainErrors.Product.NegativeStock);
+        }
+
+        return Result.Success();
     }
 }

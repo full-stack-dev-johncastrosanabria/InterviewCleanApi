@@ -1,0 +1,20 @@
+<div class="product-list" data-testid="product-list">
+  <h2>Productos ({{ products.length }})</h2>
+
+  <div *ngIf="loading" class="loading">
+    Cargando productos...
+  </div>
+
+  <div *ngIf="!loading && products.length === 0" class="empty-state">
+    <p>No hay productos disponibles</p>
+    <small>Crea tu primer producto usando el formulario arriba</small>
+  </div>
+
+  <div *ngIf="!loading && products.length > 0" class="product-grid">
+    <app-product-card
+      *ngFor="let product of products"
+      [product]="product"
+      (delete)="onDelete($event)"
+    ></app-product-card>
+  </div>
+</div>

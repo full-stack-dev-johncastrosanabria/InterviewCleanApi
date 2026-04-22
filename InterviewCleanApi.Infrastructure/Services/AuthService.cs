@@ -1,75 +1,130 @@
 using InterviewCleanApi.Application.Abstractions;
 using InterviewCleanApi.Application.DTOs.Auth;
+using InterviewCleanApi.Domain.Common;
 using InterviewCleanApi.Domain.Entities;
 using InterviewCleanApi.Domain.Enums;
+using InterviewCleanApi.Domain.Errors;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Logging;
 
 namespace InterviewCleanApi.Infrastructure.Services;
 
-public sealed class AuthService(
-    IUserRepository userRepository,
-    IPasswordHasher<AppUser> passwordHasher,
-    IJwtTokenService jwtTokenService) : IAuthService
+/// <summary>
+///     Implements authentication business logic using the Result pattern.
+/// </summary>
+public sealed class AuthService : IAuthService
 {
-    /// <summary>
-    ///     Validates registration values, hashes the password, and saves the new user.
-    /// </summary>
-    public async Task RegisterAsync(RegisterRequest request, CancellationToken cancellationToken)
+    private readonly IUserRepository _userRepository;
+    private readonly IPasswordHasher<AppUser> _passwordHasher;
+    private readonly IJwtTokenService _jwtTokenService;
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly ILogger<AuthService> _logger;
+
+    public AuthService(
+        IUserRepository userRepository,
+        IPasswordHasher<AppUser> passwordHasher,
+        IJwtTokenService jwtTokenService,
+        IUnitOfWork unitOfWork,
+        ILogger<AuthService> logger)
     {
-        // Normalizes user input before validations and unique-email checks.
-        var normalizedEmail = request.Email.Trim().ToLowerInvariant();
-        var normalizedUserName = request.UserName.Trim();
-
-        if (string.IsNullOrWhiteSpace(normalizedUserName))
-            throw new InvalidOperationException("El nombre de usuario es requerido.");
-
-        if (string.IsNullOrWhiteSpace(normalizedEmail))
-            throw new InvalidOperationException("El correo es requerido.");
-
-        if (string.IsNullOrWhiteSpace(request.Password) || request.Password.Length < 6)
-            throw new InvalidOperationException("La contraseña debe tener al menos 6 caracteres");
-
-        var existingUser = await userRepository.GetByEmailAsync(normalizedEmail, cancellationToken);
-
-        if (existingUser is not null)
-            throw new InvalidOperationException("Ha ocurrido un error, vuelva a intentar.");
-
-        // Adds the user as admin so protected CRUD operations are accessible during practice.
-        var user = new AppUser
-        {
-            UserName = normalizedUserName,
-            Email = normalizedEmail,
-            Role = UserRole.Admin,
-            PasswordHash = string.Empty
-        };
-
-        user.PasswordHash = passwordHasher.HashPassword(user, request.Password);
-
-        await userRepository.AddAsync(user, cancellationToken);
-        await userRepository.SaveChangesAsync(cancellationToken);
+        _userRepository = userRepository;
+        _passwordHasher = passwordHasher;
+        _jwtTokenService = jwtTokenService;
+        _unitOfWork = unitOfWork;
+        _logger = logger;
     }
 
-    /// <summary>
-    ///     Verifies credentials and transfer token creation to the JWT service.
-    /// </summary>
-    public async Task<LoginResponse> LoginAsync(LoginRequest request, CancellationToken cancellationToken)
+    public async Task<Result> RegisterAsync(RegisterRequest request, CancellationToken cancellationToken = default)
     {
-        var normalizedEmail = request.Email.Trim().ToLowerInvariant();
+        try
+        {
+            var normalizedEmail = request.Email.Trim().ToLowerInvariant();
+            var normalizedUserName = request.UserName.Trim();
 
-        var user = await userRepository.GetByEmailAsync(normalizedEmail, cancellationToken);
+            // Validate input
+            if (string.IsNullOrWhiteSpace(normalizedUserName))
+            {
+                return Result.Failure(DomainErrors.User.UserNameRequired);
+            }
 
-        if (user is null)
-            throw new UnauthorizedAccessException("Credenciales inválidas");
+            if (string.IsNullOrWhiteSpace(normalizedEmail))
+            {
+                return Result.Failure(DomainErrors.User.EmailRequired);
+            }
 
-        var verificationResult = passwordHasher.VerifyHashedPassword(
-            user,
-            user.PasswordHash,
-            request.Password
-        );
+            if (string.IsNullOrWhiteSpace(request.Password) || request.Password.Length < 6)
+            {
+                return Result.Failure(DomainErrors.User.PasswordTooShort);
+            }
 
-        if (verificationResult == PasswordVerificationResult.Failed)
-            throw new UnauthorizedAccessException("Credenciales inválidas");
+            // Check if user already exists
+            var existingUser = await _userRepository.GetByEmailAsync(normalizedEmail, cancellationToken);
+            if (existingUser is not null)
+            {
+                _logger.LogWarning("Registration attempt with existing email: {Email}", normalizedEmail);
+                return Result.Failure(DomainErrors.User.EmailAlreadyExists);
+            }
 
-        return jwtTokenService.CreateToken(user);
+            // Create new user
+            var user = new AppUser
+            {
+                UserName = normalizedUserName,
+                Email = normalizedEmail,
+                Role = UserRole.Admin, // For demo purposes
+                PasswordHash = string.Empty
+            };
+
+            user.PasswordHash = _passwordHasher.HashPassword(user, request.Password);
+
+            await _userRepository.AddAsync(user, cancellationToken);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+            _logger.LogInformation("User registered successfully: {Email}", normalizedEmail);
+            return Result.Success();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error during user registration");
+            return Result.Failure(new Error("Auth.RegisterFailed", "Error al registrar el usuario"));
+        }
+    }
+
+    public async Task<Result<LoginResponse>> LoginAsync(LoginRequest request, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var normalizedEmail = request.Email.Trim().ToLowerInvariant();
+
+            var user = await _userRepository.GetByEmailAsync(normalizedEmail, cancellationToken);
+
+            if (user is null)
+            {
+                _logger.LogWarning("Login attempt with non-existent email: {Email}", normalizedEmail);
+                return Result.Failure<LoginResponse>(DomainErrors.User.InvalidCredentials);
+            }
+
+            var verificationResult = _passwordHasher.VerifyHashedPassword(
+                user,
+                user.PasswordHash,
+                request.Password
+            );
+
+            if (verificationResult == PasswordVerificationResult.Failed)
+            {
+                _logger.LogWarning("Failed login attempt for user: {Email}", normalizedEmail);
+                return Result.Failure<LoginResponse>(DomainErrors.User.InvalidCredentials);
+            }
+
+            var loginResponse = _jwtTokenService.CreateToken(user);
+
+            _logger.LogInformation("User logged in successfully: {Email}", normalizedEmail);
+            return Result.Success(loginResponse);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error during user login");
+            return Result.Failure<LoginResponse>(
+                new Error("Auth.LoginFailed", "Error al iniciar sesión"));
+        }
     }
 }
