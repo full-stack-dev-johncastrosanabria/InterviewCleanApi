@@ -56,7 +56,7 @@ src/
 | Vue | 3.5.30 | Framework UI |
 | TypeScript | 5.7.3 | Tipado estático |
 | TanStack Query | 5.62.11 | Gestión de estado del servidor |
-| Vite | 8.0.0 | Build tool |
+| Vite | 8.0.0 | Build tool y dev server |
 | Playwright | 1.49.1 | Testing E2E |
 
 ## 🚀 Instalación
@@ -77,6 +77,8 @@ npm run dev
 
 # Abrir en http://localhost:5174
 ```
+
+**Nota:** El servidor de desarrollo usa el puerto **5174** (configurado en `vite.config.ts`).
 
 ## 🏗️ Build
 

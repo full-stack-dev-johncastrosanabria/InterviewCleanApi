@@ -11,6 +11,15 @@
 npm-debug.log
 yarn-error.log
 
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+environment.ts
+environment.prod.ts
+
 # IDEs and editors
 .idea/
 .project
@@ -38,6 +47,11 @@ yarn-error.log
 testem.log
 /typings
 __screenshots__/
+
+# Test results
+test-results/
+playwright-report/
+playwright/.cache/
 
 # System files
 .DS_Store

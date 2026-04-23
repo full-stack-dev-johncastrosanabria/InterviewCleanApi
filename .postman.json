@@ -1,5 +1,6 @@
 {
-  "workspaceId": "",
-  "collectionId": "",
-  "environmentId": ""
+  "workspaceId": "aedbf9a1-0185-4827-8101-6273f6c3d760",
+  "collectionId": "2e35bf93-11e5-4ebc-9b30-8d58b5e8e49d",
+  "environmentId": "4fe74c1f-1c95-4bf9-a1ad-c387e766921a",
+  "note": "Import InterviewCleanApi.postman_collection.json to Postman and update collectionId here"
 }
