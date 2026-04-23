@@ -1,0 +1,147 @@
+{
+  "env": {
+    "browser": true,
+    "es2022": true,
+    "node": true
+  },
+  "extends": [
+    "eslint:recommended",
+    "@typescript-eslint/recommended",
+    "@typescript-eslint/recommended-requiring-type-checking",
+    "plugin:vue/vue3-recommended",
+    "@vue/eslint-config-typescript/recommended",
+    "plugin:import/recommended",
+    "plugin:import/typescript",
+    "@vue/eslint-config-prettier"
+  ],
+  "parser": "vue-eslint-parser",
+  "parserOptions": {
+    "ecmaVersion": "latest",
+    "sourceType": "module",
+    "parser": "@typescript-eslint/parser",
+    "project": ["./tsconfig.json", "./tsconfig.node.json"],
+    "extraFileExtensions": [".vue"]
+  },
+  "plugins": [
+    "vue",
+    "@typescript-eslint",
+    "import"
+  ],
+  "rules": {
+    // TypeScript Rules
+    "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
+    "@typescript-eslint/no-explicit-any": "warn",
+    "@typescript-eslint/explicit-function-return-type": "off",
+    "@typescript-eslint/explicit-module-boundary-types": "off",
+    "@typescript-eslint/no-non-null-assertion": "warn",
+    "@typescript-eslint/prefer-const": "error",
+    "@typescript-eslint/no-var-requires": "error",
+    "@typescript-eslint/ban-ts-comment": "warn",
+    "@typescript-eslint/consistent-type-imports": ["error", { "prefer": "type-imports" }],
+    "@typescript-eslint/no-unnecessary-type-assertion": "error",
+    "@typescript-eslint/prefer-nullish-coalescing": "error",
+    "@typescript-eslint/prefer-optional-chain": "error",
+
+    // Vue Rules
+    "vue/multi-word-component-names": "off",
+    "vue/no-v-html": "warn",
+    "vue/require-default-prop": "error",
+    "vue/require-prop-types": "error",
+    "vue/component-definition-name-casing": ["error", "PascalCase"],
+    "vue/component-name-in-template-casing": ["error", "PascalCase"],
+    "vue/custom-event-name-casing": ["error", "camelCase"],
+    "vue/define-emits-declaration": ["error", "type-based"],
+    "vue/define-props-declaration": ["error", "type-based"],
+    "vue/html-button-has-type": "error",
+    "vue/html-self-closing": ["error", {
+      "html": {
+        "void": "always",
+        "normal": "always",
+        "component": "always"
+      },
+      "svg": "always",
+      "math": "always"
+    }],
+    "vue/max-attributes-per-line": ["error", {
+      "singleline": { "max": 3 },
+      "multiline": { "max": 1 }
+    }],
+    "vue/no-boolean-default": ["error", "default-false"],
+    "vue/no-duplicate-attr-inheritance": "error",
+    "vue/no-empty-component-block": "error",
+    "vue/no-multiple-objects-in-class": "error",
+    "vue/no-potential-component-option-typo": "error",
+    "vue/no-reserved-component-names": "error",
+    "vue/no-static-inline-styles": "error",
+    "vue/no-template-target-blank": "error",
+    "vue/no-useless-mustaches": "error",
+    "vue/no-useless-v-bind": "error",
+    "vue/padding-line-between-blocks": "error",
+    "vue/prefer-separate-static-class": "error",
+    "vue/prefer-true-attribute-shorthand": "error",
+    "vue/require-macro-variable-name": "error",
+    "vue/v-for-delimiter-style": ["error", "in"],
+    "vue/valid-define-options": "error",
+
+    // Import Rules
+    "import/order": [
+      "error",
+      {
+        "groups": [
+          "builtin",
+          "external",
+          "internal",
+          "parent",
+          "sibling",
+          "index",
+          "type"
+        ],
+        "newlines-between": "never",
+        "alphabetize": {
+          "order": "asc",
+          "caseInsensitive": true
+        }
+      }
+    ],
+    "import/no-unresolved": "error",
+    "import/no-cycle": "error",
+    "import/no-self-import": "error",
+    "import/no-duplicates": "error",
+
+    // General Rules
+    "no-console": ["warn", { "allow": ["warn", "error"] }],
+    "no-debugger": "error",
+    "no-alert": "error",
+    "no-var": "error",
+    "prefer-const": "error",
+    "prefer-arrow-callback": "error",
+    "arrow-spacing": "error",
+    "comma-dangle": ["error", "always-multiline"],
+    "semi": ["error", "always"],
+    "quotes": ["error", "single", { "avoidEscape": true }],
+    "indent": ["error", 2, { "SwitchCase": 1 }],
+    "max-len": ["warn", { "code": 100, "ignoreUrls": true, "ignoreStrings": true }],
+    "object-curly-spacing": ["error", "always"],
+    "array-bracket-spacing": ["error", "never"],
+    "eol-last": ["error", "always"],
+    "no-trailing-spaces": "error",
+    "no-multiple-empty-lines": ["error", { "max": 1, "maxEOF": 0 }]
+  },
+  "settings": {
+    "import/resolver": {
+      "typescript": {
+        "alwaysTryTypes": true,
+        "project": "./tsconfig.json"
+      }
+    }
+  },
+  "ignorePatterns": [
+    "dist",
+    "build",
+    "node_modules",
+    "*.config.js",
+    "*.config.ts",
+    "vite.config.ts",
+    "playwright.config.ts"
+  ]
+}

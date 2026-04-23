@@ -4,7 +4,7 @@ using InterviewCleanApi.Domain.Common;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace InterViewCleanApi.Controllers;
+namespace InterviewCleanApi.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]

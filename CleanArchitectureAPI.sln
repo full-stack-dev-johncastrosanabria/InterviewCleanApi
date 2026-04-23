@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InterViewCleanApi", "InterViewCleanApi\InterViewCleanApi.csproj", "{8ACF8B21-3470-4661-AF89-541B286E88BC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InterviewCleanApi.Api", "InterviewCleanApi.Api\InterviewCleanApi.Api.csproj", "{8ACF8B21-3470-4661-AF89-541B286E88BC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InterviewCleanApi.Domain", "InterviewCleanApi.Domain\InterviewCleanApi.Domain.csproj", "{B4107DCF-EFE3-49F0-86E3-8AD3A658F9FC}"
 EndProject

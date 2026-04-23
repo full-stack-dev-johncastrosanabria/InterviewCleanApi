@@ -2,7 +2,7 @@
  * API Configuration and Base Client
  */
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_BASE_URL = '';
 
 class ApiClient {
   private baseURL: string;
@@ -11,11 +11,21 @@ class ApiClient {
     this.baseURL = baseURL;
   }
 
+  private getAuthHeaders(): Record<string, string> {
+    const token = localStorage.getItem('auth_token');
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  }
+
   async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const url = `${this.baseURL}${endpoint}`;
+    
+    // Auto-inject auth token if available
+    const authHeaders = this.getAuthHeaders();
+    
     const config: RequestInit = {
       headers: {
         'Content-Type': 'application/json',
+        ...authHeaders,
         ...options.headers,
       },
       ...options,

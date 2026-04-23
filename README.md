@@ -1,236 +1,85 @@
 # InterviewCleanApi
 
-A technical interview project built with **.NET 10** following **Clean Architecture** principles, with **three separate frontend clients** implemented in **React**, **Angular**, and **Vue**.
+Clean Architecture API with .NET 10, React, and Vue clients.
 
-## 🎉 Versión 2.0 - Mejoras Implementadas
-
-Este proyecto ha sido mejorado siguiendo las **mejores prácticas de Clean Architecture** y desarrollo .NET moderno:
-
-✅ **Patrón Result** para manejo de errores explícito  
-✅ **Repository Genérico** + **Unit of Work** para persistencia  
-✅ **Errores de Dominio** centralizados y tipados  
-✅ **Validación con Data Annotations** en DTOs  
-✅ **Logging Estructurado** con ILogger  
-✅ **Global Exception Handler** para manejo consistente de errores  
-✅ **Constantes de Dominio** para valores reutilizables  
-✅ **Controladores mejorados** con ProducesResponseType  
-✅ **CORS mejorado** con soporte para credenciales  
-✅ **Principios SOLID** aplicados en toda la arquitectura  
-
-📚 **Documentación completa:**
-- [`MEJORAS_IMPLEMENTADAS.md`](MEJORAS_IMPLEMENTADAS.md) - Resumen ejecutivo de mejoras
-- [`README_IMPROVEMENTS.md`](README_IMPROVEMENTS.md) - Documentación detallada
-- [`EJEMPLOS_DE_USO.md`](EJEMPLOS_DE_USO.md) - Ejemplos prácticos de código
-
-## Overview
-
-This project includes:
-
-- JWT-based authentication
-- Role-based authorization
-- Product CRUD endpoints
-- Entity Framework Core with MySQL
-- Clean separation between `Domain`, `Application`, `Infrastructure`, and `API`
-- Multiple frontend implementations consuming the same backend API
-
-## Project Structure
-
-```text
-InterviewCleanApi
-├── clients
-│   ├── angular-client
-│   ├── react-client
-│   └── vue-client
-├── InterViewCleanApi
-├── InterviewCleanApi.Application
-├── InterviewCleanApi.Domain
-├── InterviewCleanApi.Infrastructure
-├── CleanArchitectureAPI.sln
-└── README.md
-```
-
-## Tech Stack
-
-### Backend
-- .NET 10
-- ASP.NET Core Web API
-- Entity Framework Core
-- MySQL
-- JWT Bearer Authentication
-
-### Frontend
-- React 19.2.4
-- Angular 21.2.0
-- Vue 3.5.30
-
-## Features
-
-- User registration
-- User login with JWT token generation
-- Protected product endpoints
-- Admin-only create, update, and delete operations for products
-- OpenAPI enabled in development
-
-## Architecture
-
-### Domain
-Contains core entities and enums such as:
-
-- `AppUser`
-- `Product`
-- `UserRole`
-
-### Application
-Contains DTOs and contracts such as:
-
-- `IAuthService`
-- `IProductService`
-- `IUserRepository`
-- `IProductRepository`
-
-### Infrastructure
-Contains implementation details such as:
-
-- `AppDbContext`
-- Repository implementations
-- Authentication services
-- JWT token generation
-- Dependency injection setup
-
-### API
-Contains:
-
-- Controllers
-- Middleware pipeline
-- Authentication and authorization configuration
-- CORS configuration
-
-## Prerequisites
-
-Before running the project, make sure you have:
-
-- .NET 10 SDK
-- MySQL running locally
-- Node.js and npm
-- A MySQL user with access to create and use the configured database
-
-## Configuration
-
-The API uses configuration from:
-
-- `InterViewCleanApi/appsettings.json`
-- `InterViewCleanApi/appsettings.Development.json`
-
-Example connection string:
-
-```json
-"ConnectionStrings": {
-  "DefaultConnection": "server=localhost;port=3306;database=InterviewCleanApiDb;user=root;password=YOUR_PASSWORD;"
-}
-```
-
-Example JWT settings:
-
-```json
-"Jwt": {
-  "Key": "YOUR_LONG_SECRET_KEY",
-  "Issuer": "InterviewCleanApi",
-  "Audience": "InterviewCleanApiUsers",
-  "ExpirationMinutes": 60
-}
-```
-
-> Replace these values before publishing the project. Do not commit real credentials or production secrets.
-
-## Running the API
-
-From the solution root:
+## 🚀 Quick Start
 
 ```bash
-dotnet restore CleanArchitectureAPI.sln
-dotnet run --project InterViewCleanApi
-```
+# Start API
+cd InterviewCleanApi.Api
+dotnet run
 
-Default local URL:
-
-- `https://localhost:5000`
-
-## Running the Frontend Clients
-
-### React
-```bash
+# Start React Client (in new terminal)
 cd clients/react-client
-npm install
-npm run dev
-```
+npm install && npm run dev
 
-### Angular
-```bash
-cd clients/angular-client
-npm install
-ng serve
-```
-
-### Vue
-```bash
+# Start Vue Client (in new terminal)
 cd clients/vue-client
-npm install
-npm run dev
+npm install && npm run dev
 ```
 
-## CORS
+**Test Credentials:** `john@test.com` / `123456`
 
-The API currently allows local frontend development origins such as:
+## 📖 Documentation
 
-- `http://localhost:4200`
-- `http://127.0.0.1:4200`
-- `http://localhost:5173`
-- `http://127.0.0.1:5173`
-- `http://localhost:5174`
-- `http://127.0.0.1:5174`
+- **[PROJECT_SETUP.md](PROJECT_SETUP.md)** - Complete setup guide, troubleshooting, and architecture
+- **[DOCS_INDEX.md](DOCS_INDEX.md)** - Full documentation index
 
-## Database Migrations
+See all available documentation in [DOCS_INDEX.md](DOCS_INDEX.md).
 
-To apply existing migrations:
+## 🌐 URLs
 
-```bash
-dotnet ef database update \
-  --project InterviewCleanApi.Infrastructure \
-  --startup-project InterViewCleanApi
+- **API:** http://localhost:5000
+- **React Client:** http://localhost:5173
+- **Vue Client:** http://localhost:5174
+
+## 🏗️ Architecture
+
+```
+InterviewCleanApi.Api/          # Presentation Layer
+InterviewCleanApi.Application/  # Application Layer
+InterviewCleanApi.Domain/       # Domain Layer
+InterviewCleanApi.Infrastructure/ # Infrastructure Layer
+clients/                        # Frontend Clients
 ```
 
-To create a new migration:
+## ✨ Features
 
-```bash
-dotnet ef migrations add YourMigrationName \
-  --project InterviewCleanApi.Infrastructure \
-  --startup-project InterViewCleanApi
-```
+- Clean Architecture with SOLID principles
+- JWT Authentication
+- Result Pattern for error handling
+- TanStack Query for data fetching
+- Vite proxy for CORS-free development
+- TypeScript with full type safety
+- Responsive UI with professional themes
 
-## API Endpoints
+## 📝 API Endpoints
 
-### Authentication
-
-#### Register
+### Auth
 - `POST /api/auth/register`
-
-#### Login
 - `POST /api/auth/login`
 
-### Products
-
-All product endpoints require authentication.
-
+### Products (Authenticated)
 - `GET /api/products`
 - `GET /api/products/{id}`
-- `POST /api/products` — Admin only
-- `PUT /api/products/{id}` — Admin only
-- `DELETE /api/products/{id}` — Admin only
+- `POST /api/products` (Admin)
+- `PUT /api/products/{id}` (Admin)
+- `DELETE /api/products/{id}` (Admin)
 
-## Authentication
+## 🛠️ Tech Stack
 
-Use the JWT token in the `Authorization` header:
+**Backend:**
+- .NET 10
+- Entity Framework Core
+- JWT Bearer Authentication
+- SQLite
 
-```http
-Authorization: Bearer your-jwt-token
-```
+**Frontend:**
+- React 19 + TypeScript
+- Vue 3 + TypeScript
+- TanStack Query
+- Vite
+
+## ✅ Status
+
+All systems operational and fully functional.

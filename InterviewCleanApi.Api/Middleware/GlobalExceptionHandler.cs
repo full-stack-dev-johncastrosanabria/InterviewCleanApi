@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 
-namespace InterViewCleanApi.Middleware;
+namespace InterviewCleanApi.Api.Middleware;
 
 /// <summary>
 ///     Global exception handler that provides consistent error responses.

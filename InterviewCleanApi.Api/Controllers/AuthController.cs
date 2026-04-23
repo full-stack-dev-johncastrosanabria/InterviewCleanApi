@@ -3,18 +3,13 @@ using InterviewCleanApi.Application.DTOs.Auth;
 using InterviewCleanApi.Domain.Common;
 using Microsoft.AspNetCore.Mvc;
 
-namespace InterViewCleanApi.Controllers;
+namespace InterviewCleanApi.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public sealed class AuthController : ControllerBase
+public sealed class AuthController(IAuthService authService) : ControllerBase
 {
-    private readonly IAuthService _authService;
-
-    public AuthController(IAuthService authService)
-    {
-        _authService = authService;
-    }
+    private readonly IAuthService _authService = authService;
 
     /// <summary>
     ///     Registers a new user account.

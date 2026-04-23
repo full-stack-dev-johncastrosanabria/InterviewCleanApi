@@ -4,17 +4,29 @@ import { useAuth } from '../composables/useAuth';
 
 const { login, isLoggingIn } = useAuth();
 
-const email = ref(import.meta.env.VITE_TEST_EMAIL || '');
-const password = ref(import.meta.env.VITE_TEST_PASSWORD || '');
+const email = ref(import.meta.env.VITE_TEST_EMAIL || 'john@test.com');
+const password = ref(import.meta.env.VITE_TEST_PASSWORD || '123456');
 const error = ref('');
 
 const handleSubmit = async () => {
   error.value = '';
   
+  // Validate form
+  if (!email.value || !password.value) {
+    error.value = 'Please fill in all fields';
+    return;
+  }
+  
+  if (!/\S+@\S+\.\S+/.test(email.value)) {
+    error.value = 'Please enter a valid email';
+    return;
+  }
+  
   const result = await login(email.value, password.value);
   
   if (!result.success) {
     error.value = result.error || 'Failed to login';
+    console.error('Login error:', result.error);
   }
 };
 </script>

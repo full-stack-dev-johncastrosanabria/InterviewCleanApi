@@ -1,7 +1,7 @@
 using System.Text;
 using InterviewCleanApi.Infrastructure.DependencyInjection;
 using InterviewCleanApi.Infrastructure.Security;
-using InterViewCleanApi.Middleware;
+using InterviewCleanApi.Api.Middleware;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 
@@ -71,8 +71,10 @@ app.UseExceptionHandler();
 if (app.Environment.IsDevelopment()) app.MapOpenApi();
 
 // Applies the standard ASP.NET Core middleware pipeline for this API.
-app.UseHttpsRedirection();
 app.UseCors("frontend");
+
+// Only redirect to HTTPS in non-development environments
+if (!app.Environment.IsDevelopment()) app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
