@@ -116,22 +116,22 @@ cd clients/react-client && npm run dev
 
 ## 📖 Documentation
 
-- **[PROJECT_SETUP.md](PROJECT_SETUP.md)** - Complete setup, architecture, and troubleshooting
-- **[DOCS_INDEX.md](DOCS_INDEX.md)** - Full documentation index
+**[PROJECT_SETUP.md](PROJECT_SETUP.md)** - Complete setup guide, troubleshooting, and architecture details.
 
 ## 🚀 Push to GitHub
 
-**SSH Key Setup:**
-```bash
-# Your SSH public key (add to GitHub):
-ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEdY4H+WQtQk3R5wERzBHR4hdALL6GXJcfzszhU0os1s castrosanabriajohn@gmail.com
+**Add SSH Key to GitHub:** https://github.com/settings/ssh/new
 
-# Add to: https://github.com/settings/ssh/new
-# Then push:
+```
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEdY4H+WQtQk3R5wERzBHR4hdALL6GXJcfzszhU0os1s castrosanabriajohn@gmail.com
+```
+
+**Then push:**
+```bash
 git push origin main --force-with-lease
 ```
 
-See **[READY_TO_PUSH.md](READY_TO_PUSH.md)** for detailed instructions.
+See **[PUSH_NOW.md](PUSH_NOW.md)** for detailed instructions.
 
 ## ✅ Status
 
