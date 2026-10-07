@@ -1,6 +1,6 @@
 # 🚀 Interview Clean API
 
-A production-ready RESTful API built with **Clean Architecture** principles, featuring .NET 10, MySQL database, JWT authentication, and multiple frontend clients (React, Vue, and Angular).
+A portfolio RESTful API built with **Clean Architecture** principles, featuring .NET 10, MySQL database, JWT authentication, and multiple frontend clients (React, Vue, and Angular).
 
 ---
 
